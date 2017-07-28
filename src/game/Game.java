@@ -37,16 +37,16 @@ public class Game {
         deck = new Stack<Card>();
         
         for (int i = 0; i < 15; i++) {
-            if (i % 4 == 0) {
+            if (i % 5 == 0) {
                 deck.add(new Card(CardType.CONTESSA));
             }
-            else if (i % 4 == 1) {
+            else if (i % 5 == 1) {
                 deck.add(new Card(CardType.DUKE));
             }
-            else if (i % 4 == 2) {
+            else if (i % 5 == 2) {
                 deck.add(new Card(CardType.ASSASSIN));
             }
-            else if (i % 4 == 3) {
+            else if (i % 5 == 3) {
                 deck.add(new Card(CardType.AMBASSADOR));
             }
             else {
@@ -64,6 +64,16 @@ public class Game {
         player2.setHand(deck.pop(), deck.pop());
     }
     
+    private String deckString() {
+        String ret = new String();
+        
+        for (Card card: deck) {
+            ret += card.influence.toString() + "\n";
+        }
+        
+        return ret;
+    }
+    
     /**
      * Prints the following to console:
      * 1. Current deck
@@ -71,16 +81,16 @@ public class Game {
      * 2. Player 2's hand and coins
      */
     public void gameState() {
-        System.out.println("----Game State----");
+        System.out.println("====Game State====\n");
         System.out.println("Deck: ");
         for (Card card : deck) {
             System.out.println(card.influence.toString());
         }
         
-        System.out.println("--- Player 1's Hand ---");
-        System.out.println(player1.handString()+"\n\n");
+        System.out.println("\n--- Player 1's Hand ---");
+        System.out.println(player1.handString()+"\n");
         System.out.println("--- Player 2's Hand ---");
-        System.out.println(player2.handString() + "\n\n");
+        System.out.println(player2.handString() + "\n");
         
         System.out.println("===End Game State===");
     }
