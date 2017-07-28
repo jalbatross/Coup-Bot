@@ -132,4 +132,16 @@ public class Player {
         }
         return anAction;
     }
+    
+    public CardType getResponse() {
+        return hand[0].influence;
+    }
+
+    public Card revealCard() {
+        
+        //TODO: Ask user which card they want to reveal
+        hand[0].reveal();
+        return hand[0];
+        
+    }
 }

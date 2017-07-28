@@ -9,6 +9,7 @@ public class Game {
     private Player player2;
     
     private Stack<Card> deck;
+    private Stack<Object> turnStack;
     
     public Game(Player p1, Player p2) {
         player1 = p1;
@@ -104,6 +105,37 @@ public class Game {
         
         //Game loop
         while (player1.isAlive() || player2.isAlive()) {
+            
         }
+    }
+    private void gameLoop() {
+        //Set possible actions for player 1
+        //Place player 1's action on the turn stack
+        //Get player 2's reaction if possible
+        //If player 2's reaction is not a challenge, give player 1 the
+        //opportunity to challenge
+        //Resolve the turn stack in backwards order
+        
+        //If a challenge is successful, the card of the challenged is revealed
+        //The action of the person who was challenged is removed from the turn stack
+        //And the turn stack proceeds to resolve.
+        
+    }
+    
+    private boolean resolveChallenge(Player challenged, Player challenger, Action anAction) throws Exception {
+        CardType response = challenged.getResponse();
+        
+        //Challenge fails
+        if (CardType.action(response) == anAction) {
+            deck.add(challenged.exchangeCard(response, deck.pop()));
+            challenger.revealCard();
+            return false;
+        }
+        //Challenge succeeds
+        else {
+            challenged.revealCard();
+            return true;
+        }
+        
     }
 }
