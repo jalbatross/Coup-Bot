@@ -17,4 +17,16 @@ public class Card {
     public void reveal() {
         revealed = true;
     }
+    
+    public boolean revealed() {
+        return revealed;
+    }
+    
+    public String toString() {
+        String ret = new String();
+        ret += influence.toString();
+        ret += revealed ? " (revealed)" : " (hidden)";
+        
+        return ret;
+    }
 }

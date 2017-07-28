@@ -18,15 +18,6 @@ public class Game {
         
     }
     
-    public static void main (String[] args) {
-        Player player1 = new Player();
-        Player player2 = new Player();
-        
-        Game game = new Game(player1,player2);
-        
-        game.gameState();
-    }
-    
     private void init() {
         createDeck();
         shuffleDeck();
@@ -87,11 +78,32 @@ public class Game {
             System.out.println(card.influence.toString());
         }
         
-        System.out.println("\n--- Player 1's Hand ---");
-        System.out.println(player1.handString()+"\n");
-        System.out.println("--- Player 2's Hand ---");
-        System.out.println(player2.handString() + "\n");
+        System.out.println("\n--- Player 1's Info ---");
+        System.out.println(player1.toString());
+        System.out.println("--- Player 2's Info ---");
+        System.out.println(player2.toString());
         
         System.out.println("===End Game State===");
+    }
+    
+    /**
+     * Exchanges a random card from aPlayer's hand and the deck.
+     * @param aPlayer
+     */
+    public void exchangeRandomCard(Player aPlayer) {
+        
+    }
+    
+    public static void main (String[] args) {
+        Player player1 = new Player();
+        Player player2 = new Player();
+        
+        Game game = new Game(player1,player2);
+
+        game.gameState();
+        
+        //Game loop
+        while (player1.isAlive() || player2.isAlive()) {
+        }
     }
 }
