@@ -6,7 +6,7 @@ public class Player {
     
     protected Card[] hand;
     protected int coins;
-    protected ArrayList<Actions> actions;
+    protected ArrayList<Action> actions;
     
     public Player() {
         hand = new Card[2];
@@ -70,12 +70,12 @@ public class Player {
     }
     
     public void setPossibleActions() {
-        this.actions = new ArrayList<Actions>();
-        for (Actions enumActions : Actions.values()) {
-            if (enumActions == Actions.ASSASSINATE && coins < 3) {
+        this.actions = new ArrayList<Action>();
+        for (Action enumActions : Action.values()) {
+            if (enumActions == Action.ASSASSINATE && coins < 3) {
                 continue;
             }
-            if (enumActions == Actions.COUP && coins < 7) {
+            if (enumActions == Action.COUP && coins < 7) {
                 continue;
             }
             
@@ -99,5 +99,37 @@ public class Player {
         }
         
         return ret;
+    }
+    
+    public Action performAction(Action anAction, Player opponent) throws Exception {
+        if (!actions.contains(anAction)) {
+            throw new IndexOutOfBoundsException();
+        }
+        
+        switch(anAction) {
+            case INCOME:
+                //Do income
+                break;
+            case FOREIGN_AID:
+                //Do foreign aid
+                break;
+            case COUP:
+                //Do coup
+                break;
+            case TAX:
+                //Do tax (Duke action)
+                break;
+            case ASSASSINATE:
+                //Do assassinate
+                break;
+            case EXCHANGE:
+                //Do exchange (Ambassador)
+                break;
+            case STEAL:
+                //Do steal
+                break;
+                
+        }
+        return anAction;
     }
 }

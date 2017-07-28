@@ -1,7 +1,7 @@
 package game;
 
 
-public enum Actions {
+public enum Action {
     INCOME,
     FOREIGN_AID,
     COUP,

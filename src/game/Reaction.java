@@ -1,6 +1,6 @@
 package game;
 
-public enum Reactions {
+public enum Reaction {
     CHALLENGE,
     BLOCK_STEAL,
     BLOCK_ASSASSINATE,
