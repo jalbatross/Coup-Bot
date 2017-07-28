@@ -1,5 +1,7 @@
 package game;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class Player {
@@ -7,11 +9,19 @@ public class Player {
     protected Card[] hand;
     protected int coins;
     protected ArrayList<Action> actions;
+    protected ArrayList<Reaction> reactions;
+    public String name;
     
     public Player() {
         hand = new Card[2];
         coins = 0;
         setPossibleActions();
+    }
+    public Player(String _name) {
+        hand = new Card[2];
+        coins = 0;
+        setPossibleActions();
+        name = _name;
     }
     
     public void setHand(Card card1, Card card2) {
@@ -133,15 +143,175 @@ public class Player {
         return anAction;
     }
     
-    public CardType getResponse() {
-        return hand[0].influence;
+    public CardType getActionChallengeResponse(Action action) {
+        
+        System.out.println(name + ", your action of " + action + " is being challenged");
+        System.out.println("Your hand: " + handString());
+        
+        System.out.println("You may reveal any card that is hidden");
+        System.out.println("Enter 0 for the first card and 1 for the second");
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int choice = 0;
+        try {
+            choice = Integer.parseInt(br.readLine()) % 2;
+        }
+        catch (Exception e){
+            System.out.println("User tried to do invalid action");
+            choice = 0; 
+        }
+        
+        if (hand[choice].revealed()) {
+            choice = (choice + 1) % 2;
+        }
+        
+        return hand[choice].influence;
+    }
+    
+    public CardType getReactionChallengeResponse(Reaction reaction) {
+        System.out.println(name + ", your reaction of " + reaction + " is being challenged");
+        System.out.println("Your hand: " + handString());
+        
+        System.out.println("You may reveal any card that is hidden");
+        System.out.println("Enter 0 for the first card and 1 for the second");
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int choice = 0;
+        try {
+            choice = Integer.parseInt(br.readLine()) % 2;
+        }
+        catch (Exception e){
+            System.out.println("User tried to do invalid action");
+            choice = 0; 
+        }
+        
+        if (hand[choice].revealed()) {
+            choice = (choice + 1) % 2;
+        }
+        
+        return hand[choice].influence;
     }
 
     public Card revealCard() {
+        System.out.println(name + ", you must reveal a card");
+        System.out.println("Your hand: " + handString());
         
-        //TODO: Ask user which card they want to reveal
-        hand[0].reveal();
-        return hand[0];
+        System.out.println("You may reveal any card that is hidden");
+        System.out.println("Enter 0 for the first card and 1 for the second");
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int choice = 0;
+        try {
+            choice = Integer.parseInt(br.readLine()) % 2;
+        }
+        catch (Exception e){
+            System.out.println("User tried to do invalid action");
+            choice = 0; 
+        }
+        
+        if (hand[choice].revealed()) {
+            choice = (choice + 1) % 2;
+        }
+        
+        hand[choice].reveal();
+        return hand[choice];
+    }
+    
+    public Action getUserAction() {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int choice;
+        showActionChoices();
+        try {
+            choice = Integer.parseInt(br.readLine()) % actions.size();
+        }
+        catch (Exception e){
+            System.out.println("User tried to do invalid action");
+            choice = 0; 
+        }
+        
+        return actions.get(choice);
         
     }
+    
+    public Reaction getUserReaction() {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int choice;
+        showReactionChoices();
+        try {
+            choice = Integer.parseInt(br.readLine()) % reactions.size();
+        }
+        catch (Exception e){
+            System.out.println("User tried to do invalid action");
+            choice = 0; 
+        }
+        
+        return reactions.get(choice);
+        
+    }
+    
+    
+    private void showActionChoices() {
+        System.out.println("Action choices: ");
+        for (int i = 0; i < actions.size(); i++) {
+            System.out.println(i + ": " + actions.get(i).toString());
+        }
+    }
+    
+    private void showReactionChoices() {
+        System.out.println("Reaction choices: ");
+        for (int i = 0; i < reactions.size(); i++) {
+            System.out.println(i + ": " + reactions.get(i).toString());
+        }
+    }
+
+    public boolean wantsChallengeReaction(Reaction aReaction) {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int choice;
+        System.out.println("Would you like to challenge " + aReaction.toString() + "?");
+        System.out.println("1 for YES, 0 for NO");
+        
+        try {
+            choice = Integer.parseInt(br.readLine());
+        }
+        catch(Exception e){
+            choice = 0;
+        }
+        
+        return choice == 1 ? true: false;
+    }
+
+    public boolean wantsReaction(Action anAction) {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int choice;
+        
+        System.out.println("Would you like to react to " + anAction.toString() + "?");
+        System.out.println("1 for YES, 0 for NO");
+        
+        try {
+            choice = Integer.parseInt(br.readLine());
+        }
+        catch(Exception e){
+            choice = 0;
+        }
+        
+        return choice == 1 ? true: false;
+    }
+
+    public void setPossibleReactions(Action anAction) {
+        this.reactions = new ArrayList<Reaction>();
+        reactions.add(Reaction.CHALLENGE);
+        if (!anAction.blockable()) {
+            return;
+        }
+        reactions.add(Action.correspondingReaction(anAction));
+        
+    }
+    
+    public void setBlockReaction(Action anAction) {
+        this.reactions = new ArrayList<Reaction>();
+        reactions.add(Action.correspondingReaction(anAction));
+    }
+
+
+
 }

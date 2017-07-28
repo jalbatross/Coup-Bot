@@ -8,14 +8,23 @@ public class Game {
     private Player player1;
     private Player player2;
     
+    private Player turnPlayer;
+    private Player opponent;
+    //private Player target;
+    
+    //private ArrayList<Player> players;
     private Stack<Card> deck;
     private Stack<Object> turnStack;
     
     public Game(Player p1, Player p2) {
         player1 = p1;
         player2 = p2;
-        
+        turnStack = new Stack<Object>();
         init();
+        
+        int randomNumber = (int) (Math.random() * 1000);
+        turnPlayer = (randomNumber % 2 == 0) ? player1: player2;
+        opponent = (turnPlayer == player1) ? player2: player1;
         
     }
     
@@ -79,9 +88,11 @@ public class Game {
             System.out.println(card.influence.toString());
         }
         
-        System.out.println("\n--- Player 1's Info ---");
+        System.out.println("Current acting player: " + turnPlayer.name);
+        
+        System.out.println("\n--- " + player1.name + "'s info ---");
         System.out.println(player1.toString());
-        System.out.println("--- Player 2's Info ---");
+        System.out.println("--- " + player2.name + "'s info ---");
         System.out.println(player2.toString());
         
         System.out.println("===End Game State===");
@@ -95,47 +106,136 @@ public class Game {
         
     }
     
-    public static void main (String[] args) {
-        Player player1 = new Player();
-        Player player2 = new Player();
+    public static void main (String[] args) throws Exception {
+        Player player1 = new Player("Alice");
+        Player player2 = new Player("Bob");
         
         Game game = new Game(player1,player2);
 
         game.gameState();
         
         //Game loop
-        while (player1.isAlive() || player2.isAlive()) {
-            
+        while (player1.isAlive() && player2.isAlive()) {
+            game.gameLoop();
+            game.nextPlayer();
+            game.gameState();
+        }
+        
+        if (player1.isAlive()) {
+            System.out.println(player1.name + " won!");
+        }
+        else {
+            System.out.println(player2.name + " won!");
         }
     }
-    private void gameLoop() {
-        //Set possible actions for player 1
-        //Place player 1's action on the turn stack
-        //Get player 2's reaction if possible
-        //If player 2's reaction is not a challenge, give player 1 the
-        //opportunity to challenge
-        //Resolve the turn stack in backwards order
+    private void nextPlayer() {
+        turnPlayer = (turnPlayer == player1) ? player2: player1;
+        opponent = (turnPlayer == player1 ) ? player2: player1;
+    }
+    private void gameLoop() throws Exception {
+        System.out.println("--- Beginning " + turnPlayer.name + "'s turn ---");
+        turnPlayer.setPossibleActions();
         
-        //If a challenge is successful, the card of the challenged is revealed
-        //The action of the person who was challenged is removed from the turn stack
-        //And the turn stack proceeds to resolve.
+        Action turnAction = turnPlayer.getUserAction();
+        turnStack.push(turnAction);
+
+        if (canRespond(turnAction) && opponent.wantsReaction(turnAction)) {
+            opponent.setPossibleReactions(turnAction);
+            Reaction response = opponent.getUserReaction();
+            turnStack.push(response);
+            if (response == Reaction.CHALLENGE) {
+                turnStack.pop();
+                if (resolveActionChallenge(turnPlayer, opponent, (Action) turnStack.peek())) {
+                    turnStack.clear();
+                }
+                else {
+                    if (turnAction.blockable() && opponent.wantsReaction(turnAction)) {
+                        opponent.setBlockReaction(turnAction);
+                        turnStack.push(opponent.getUserReaction());
+                    }
+                }
+            }
+            
+            
+        }
+        if(turnStack.peek() instanceof Reaction 
+           && (Reaction) turnStack.peek() != Reaction.CHALLENGE 
+           && turnPlayer.wantsChallengeReaction((Reaction) turnStack.peek())) {
+            if (resolveReactionChallenge(opponent, turnPlayer, (Reaction) turnStack.peek())) {
+                turnStack.pop();
+            }
+            else {
+                turnStack.clear();
+            }
+        }
         
+        resolveTurnStack(turnPlayer, opponent);
+        System.out.println("--- Ending " + turnPlayer.name + "'s turn---");
     }
     
-    private boolean resolveChallenge(Player challenged, Player challenger, Action anAction) throws Exception {
-        CardType response = challenged.getResponse();
+    private void resolveTurnStack(Player turnPlayer, Player target) {
+        if (turnStack.isEmpty()) {
+            return;
+        }
+        
+        //Successful block
+        if (turnStack.size() == 2) {
+            //Alert users that block succeeded
+            return;
+        }
+        
+        try {
+            turnPlayer.performAction((Action) turnStack.pop(), target);
+        }
+        catch (Exception e) {
+            System.out.println("Failed to resolve turn stack");
+            e.printStackTrace();
+        } 
+        
+    }
+
+    private boolean resolveActionChallenge(Player challenged, Player challenger,
+            Action anAction) throws Exception {
+        CardType response = challenged.getActionChallengeResponse(anAction);
         
         //Challenge fails
         if (CardType.action(response) == anAction) {
+            System.out.println("Challenge from " + challenger.name + " failed");
             deck.add(challenged.exchangeCard(response, deck.pop()));
             challenger.revealCard();
             return false;
         }
         //Challenge succeeds
         else {
+            System.out.println("Challenge from " + challenger.name + " succeeded");
             challenged.revealCard();
             return true;
         }
         
+    }
+    
+    private boolean resolveReactionChallenge(Player challenged, Player challenger,
+            Reaction aReaction) throws Exception {
+        
+        CardType response = challenged.getReactionChallengeResponse(aReaction);
+        
+        //Challenge fails
+        if (CardType.reaction(response) == aReaction) {
+            System.out.println("Challenge from " + challenger.name + " failed");
+            deck.add(challenged.exchangeCard(response, deck.pop()));
+            challenger.revealCard();
+            return false;
+        }
+        //Challenge succeeds
+        else {
+            System.out.println("Challenge from " + challenger.name +  " succeeded");
+            challenged.revealCard();
+            return true;
+        }
+        
+    }
+    
+    private boolean canRespond(Action anAction) {
+        return anAction != Action.INCOME && anAction != Action.COUP;
     }
 }
