@@ -1,6 +1,7 @@
 package game;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -10,6 +11,7 @@ public class Player {
     protected int coins;
     protected ArrayList<Action> actions;
     protected ArrayList<Reaction> reactions;
+    
     public String name;
     
     public Player() {
@@ -31,6 +33,17 @@ public class Player {
     
     public String handString() {
         String ret = hand[0] + ", " + hand[1];
+        return ret;
+    }
+    
+    public String hiddenCardsString() {
+        String ret = "";
+        for (int i = 0; i < 2; i++) {
+            if (!hand[i].revealed()) {
+                ret += i +": " + hand[i].toString();
+            }
+        }
+        
         return ret;
     }
     
@@ -146,10 +159,9 @@ public class Player {
     public CardType getActionChallengeResponse(Action action) {
         
         System.out.println(name + ", your action of " + action + " is being challenged");
-        System.out.println("Your hand: " + handString());
+        System.out.println("Your choices: " + hiddenCardsString());
         
-        System.out.println("You may reveal any card that is hidden");
-        System.out.println("Enter 0 for the first card and 1 for the second");
+        System.out.println("Enter a number corresponding to your choice");
         
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int choice = 0;
@@ -170,10 +182,9 @@ public class Player {
     
     public CardType getReactionChallengeResponse(Reaction reaction) {
         System.out.println(name + ", your reaction of " + reaction + " is being challenged");
-        System.out.println("Your hand: " + handString());
+        System.out.println("Your choices: " + hiddenCardsString());
         
-        System.out.println("You may reveal any card that is hidden");
-        System.out.println("Enter 0 for the first card and 1 for the second");
+        System.out.println("Enter a number corresponding to your choice");
         
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int choice = 0;
@@ -194,10 +205,9 @@ public class Player {
 
     public Card revealCard() {
         System.out.println(name + ", you must reveal a card");
-        System.out.println("Your hand: " + handString());
+        System.out.println("Your choices: " + hiddenCardsString());
         
-        System.out.println("You may reveal any card that is hidden");
-        System.out.println("Enter 0 for the first card and 1 for the second");
+        System.out.println("Enter a number corresponding to your choice");
         
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int choice = 0;
@@ -311,7 +321,119 @@ public class Player {
         this.reactions = new ArrayList<Reaction>();
         reactions.add(Action.correspondingReaction(anAction));
     }
-
+    
+    /**
+     * Returns an array of the two cards which the player who
+     * used Ambassador decided not to choose.
+     * @param card1   First card from the deck
+     * @param card2   Second card from the deck
+     * @return        Two cards which Player does not choose
+     */
+    public Card[] ambassadorExchange(Card card1, Card card2) {
+        System.out.println("Your hand: " + handString());
+        System.out.println("Cards from the deck: " + card1.toString() 
+        + ", " + card2.toString());
+        
+        int exchangeNum = numHiddenCards();
+        
+        System.out.println("Choose any " + exchangeNum + " cards to keep. "
+                + "The rest will be placed back into the deck.");
+        
+        if (exchangeNum == 2) {
+        System.out.println("Enter your choice as two numbers separated by"
+                + " a comma, for instance 0,1 or 2,1");
+        }
+        else {
+            System.out.println("Enter your choice");
+        }
+        
+        ArrayList<Card> choices = new ArrayList<Card>();
+        for (int i = 0; i < 2; i++) {
+            if (!hand[i].revealed()) {
+                choices.add(hand[i]);
+            }
+        }
+        choices.add(card1);
+        choices.add(card2);
+        
+        for (int i = 0; i < choices.size(); i++) {
+            System.out.println(i + ": " + choices.get(i).toString());
+        }
+        
+        if (exchangeNum == 2) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String choiceString = "";
+            int choice1 = 0;
+            int choice2 = 0;
+            
+            try {
+                choiceString = br.readLine();
+            }
+            catch (IOException e) {
+                choice1 = 0;
+                choice2 = 1;
+            }
+            
+            if (choiceString.length() != 3) {
+                choice1 = 0;
+                choice2 = 1;
+            }
+            else {
+                choice1 = Character.getNumericValue(choiceString.charAt(0)) % choices.size();
+                choice2 = Character.getNumericValue(choiceString.charAt(2)) % choices.size();
+                
+                if (choice1 == choice2) {
+                    choice1 = (choice1 + 1) % choices.size();
+                }
+            }
+            
+            setHand(choices.get(choice1), choices.get(choice2));
+            Card[] returnedCards = new Card[2];
+            for(int i = 0, j =0; i < choices.size(); i++) {
+                if (i != choice1 && i != choice2) {
+                    returnedCards[j] = choices.get(i);
+                    j++;
+                }
+            }
+            
+            return returnedCards;
+            
+        }
+        else {
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            int choice = 0;
+            
+            try {
+                choice = Integer.parseInt(br.readLine()) % choices.size();
+            }
+            catch (IOException e) {
+                choice = 0;
+            }
+            
+            for (int i = 0; i < 2; i++) {
+                if (!hand[i].revealed()) {
+                    hand[i] = choices.get(choice);
+                }
+            }
+            
+            choices.remove(choice);
+            Card[] returnedCards = new Card[2];
+            
+            return choices.toArray(returnedCards);
+        }
+       
+    }
+    
+    public int numHiddenCards() {
+        int count = 0;
+        for (int i = 0; i < 2; i ++) {
+            if (!hand[i].revealed()) {
+                count++;
+            }
+        }
+        
+        return count;
+    }
 
 
 }

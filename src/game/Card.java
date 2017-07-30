@@ -1,5 +1,7 @@
 package game;
 
+import java.util.ArrayList;
+
 public class Card {
     public CardType influence;
     private boolean revealed;
@@ -29,4 +31,5 @@ public class Card {
         
         return ret;
     }
+    
 }

@@ -185,7 +185,23 @@ public class Game {
         }
         
         try {
-            turnPlayer.performAction((Action) turnStack.pop(), target);
+            
+            Action playerAction = (Action) turnStack.pop();
+            turnPlayer.performAction(playerAction, target);
+            if (playerAction == Action.EXCHANGE) {
+                shuffleDeck();
+                Card card1 = deck.pop();
+                Card card2 = deck.pop();
+                
+                Card[] exchangedCards = turnPlayer.ambassadorExchange(card1, card2);
+                
+                for (int i = 0; i < exchangedCards.length; i++) {
+                    deck.push(exchangedCards[i]);
+                }
+                
+                shuffleDeck();
+            }
+            
         }
         catch (Exception e) {
             System.out.println("Failed to resolve turn stack");
@@ -238,4 +254,5 @@ public class Game {
     private boolean canRespond(Action anAction) {
         return anAction != Action.INCOME && anAction != Action.COUP;
     }
+    
 }
