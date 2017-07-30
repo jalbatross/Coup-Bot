@@ -40,7 +40,7 @@ public class Player {
         String ret = "";
         for (int i = 0; i < 2; i++) {
             if (!hand[i].revealed()) {
-                ret += i +": " + hand[i].toString();
+                ret += i +": " + hand[i].toString() + "\n";
             }
         }
         
@@ -62,6 +62,7 @@ public class Player {
     public Card exchangeCard(CardType type, Card exchangeCard) throws Exception {
         
         Card cardInHand = null;
+        System.out.println("Placing " + exchangeCard.toString() + " into the hand of " + name);
         
         //Search the hand for a non-revealed card of CardType type
         for (int i = 0; i < 2; i++) {
@@ -159,7 +160,7 @@ public class Player {
     public CardType getActionChallengeResponse(Action action) {
         
         System.out.println(name + ", your action of " + action + " is being challenged");
-        System.out.println("Your choices: " + hiddenCardsString());
+        System.out.println("Reveal a card:\n" + hiddenCardsString());
         
         System.out.println("Enter a number corresponding to your choice");
         
@@ -182,7 +183,7 @@ public class Player {
     
     public CardType getReactionChallengeResponse(Reaction reaction) {
         System.out.println(name + ", your reaction of " + reaction + " is being challenged");
-        System.out.println("Your choices: " + hiddenCardsString());
+        System.out.println("Reveal a card:\n" + hiddenCardsString());
         
         System.out.println("Enter a number corresponding to your choice");
         
@@ -225,6 +226,20 @@ public class Player {
         
         hand[choice].reveal();
         return hand[choice];
+    }
+    
+    public Card revealCard(CardType type) throws Exception {
+        Card revealed = null;
+        for (int i = 0; i < 2; i++) {
+            if (hand[i].influence == type && !hand[i].revealed()) {
+                hand[i].reveal();
+                revealed = hand[i];
+            }
+        }
+        if (revealed == null) {
+            throw new Exception("Couldn't find card to reveal!");
+        }
+        return revealed;
     }
     
     public Action getUserAction() {

@@ -224,7 +224,7 @@ public class Game {
         //Challenge succeeds
         else {
             System.out.println("Challenge from " + challenger.name + " succeeded");
-            challenged.revealCard();
+            challenged.revealCard(response);
             return true;
         }
         
@@ -245,7 +245,7 @@ public class Game {
         //Challenge succeeds
         else {
             System.out.println("Challenge from " + challenger.name +  " succeeded");
-            challenged.revealCard();
+            challenged.revealCard(response);
             return true;
         }
         
