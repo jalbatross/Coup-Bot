@@ -131,6 +131,8 @@ public class Game {
     private void nextPlayer() {
         turnPlayer = (turnPlayer == player1) ? player2: player1;
         opponent = (turnPlayer == player1 ) ? player2: player1;
+        
+        turnStack = new Stack<Object>();
     }
     private void gameLoop() throws Exception {
         System.out.println("--- Beginning " + turnPlayer.name + "'s turn ---");
@@ -142,6 +144,7 @@ public class Game {
         if (turnAction == Action.ASSASSINATE) {
             turnPlayer.setCoins(turnPlayer.coins() - 3);
         }
+        
         turnStack.push(turnAction);
 
         if (canRespond(turnAction) && opponent.wantsReaction(turnAction)) {

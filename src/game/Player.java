@@ -95,6 +95,10 @@ public class Player {
     
     public void setPossibleActions() {
         this.actions = new ArrayList<Action>();
+        if (coins >=10) {
+            this.actions.add(Action.COUP);
+            return;
+        }
         for (Action enumActions : Action.values()) {
             if (enumActions == Action.ASSASSINATE && coins < 3) {
                 continue;
