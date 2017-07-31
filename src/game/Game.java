@@ -137,6 +137,11 @@ public class Game {
         turnPlayer.setPossibleActions();
         
         Action turnAction = turnPlayer.getUserAction();
+        
+        //Immediately pay 3 coins
+        if (turnAction == Action.ASSASSINATE) {
+            turnPlayer.setCoins(turnPlayer.coins() - 3);
+        }
         turnStack.push(turnAction);
 
         if (canRespond(turnAction) && opponent.wantsReaction(turnAction)) {

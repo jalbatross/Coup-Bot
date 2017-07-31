@@ -125,6 +125,16 @@ public class Player {
         return ret;
     }
     
+    /**
+     * Performs the given action. Ambassador Exchange must be handled by the
+     * Game object and is not implemented here. Assassin payment is assumed 
+     * to be handled by the Game object.
+     * 
+     * @param anAction   An action to execute by an acting player
+     * @param opponent   Acting player's possible target
+     * @return           anAction
+     * @throws Exception IndexOutOfBounds if the action is not possible
+     */
     public Action performAction(Action anAction, Player opponent) throws Exception {
         if (!actions.contains(anAction)) {
             throw new IndexOutOfBoundsException();
@@ -132,25 +142,33 @@ public class Player {
         
         switch(anAction) {
             case INCOME:
-                //Do income
+                coins++;
                 break;
             case FOREIGN_AID:
-                //Do foreign aid
+                coins += 2;
                 break;
             case COUP:
-                //Do coup
+                coins -= 7;
+                opponent.revealCard();
                 break;
             case TAX:
-                //Do tax (Duke action)
+                coins += 3;
                 break;
             case ASSASSINATE:
-                //Do assassinate
+                opponent.revealCard();
                 break;
             case EXCHANGE:
-                //Do exchange (Ambassador)
+                //Game takes care of this, no-op
                 break;
             case STEAL:
-                //Do steal
+                if (opponent.coins < 2) {
+                    coins += opponent.coins;
+                    opponent.coins = 0;
+                }
+                else {
+                    coins +=2; 
+                    opponent.coins -= 2;
+                }
                 break;
                 
         }
