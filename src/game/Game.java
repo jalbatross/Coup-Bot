@@ -108,7 +108,7 @@ public class Game {
     
     public static void main (String[] args) throws Exception {
         Player player1 = new Player("Alice");
-        Player player2 = new Player("Bob");
+        RandomBot player2 = new RandomBot();
         
         Game game = new Game(player1,player2);
 

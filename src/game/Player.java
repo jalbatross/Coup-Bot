@@ -16,12 +16,12 @@ public class Player {
     
     public Player() {
         hand = new Card[2];
-        coins = 0;
+        coins = 2;
         setPossibleActions();
     }
     public Player(String _name) {
         hand = new Card[2];
-        coins = 0;
+        coins = 2;
         setPossibleActions();
         name = _name;
     }
