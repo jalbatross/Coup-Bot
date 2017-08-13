@@ -256,6 +256,8 @@ public class Player {
             if (hand[i].influence == type && !hand[i].revealed()) {
                 hand[i].reveal();
                 revealed = hand[i];
+                //Only want one card revealed
+                break;
             }
         }
         if (revealed == null) {
