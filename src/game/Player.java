@@ -346,7 +346,9 @@ public class Player {
 
     public void setPossibleReactions(Action anAction) {
         this.reactions = new ArrayList<Reaction>();
-        reactions.add(Reaction.CHALLENGE);
+        if (anAction != Action.FOREIGN_AID) {
+            reactions.add(Reaction.CHALLENGE);
+        }
         if (!anAction.blockable()) {
             return;
         }

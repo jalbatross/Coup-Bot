@@ -93,7 +93,12 @@ public class Game {
         System.out.println("\n--- " + player1.name + "'s info ---");
         System.out.println(player1.toString());
         System.out.println("--- " + player2.name + "'s info ---");
-        System.out.println(player2.toString());
+        if (player2 instanceof RandomBot) {
+            System.out.println(((RandomBot) player2).toStringBot());
+        }
+        else {
+            System.out.println(player2.toString());
+        }
         
         System.out.println("===End Game State===");
     }
@@ -166,7 +171,9 @@ public class Game {
             
             
         }
-        if(turnStack.peek() instanceof Reaction 
+        //Resolve reactions if they exist
+        if(!turnStack.isEmpty() 
+           && turnStack.peek() instanceof Reaction 
            && (Reaction) turnStack.peek() != Reaction.CHALLENGE 
            && turnPlayer.wantsChallengeReaction((Reaction) turnStack.peek())) {
             if (resolveReactionChallenge(opponent, turnPlayer, (Reaction) turnStack.peek())) {

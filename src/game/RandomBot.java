@@ -21,6 +21,29 @@ public class RandomBot extends Player {
         rand = new SplittableRandom();
     }
     
+    public String handStringBot() {
+        String ret = "";
+        if (hand[0].revealed()) {
+            ret += hand[0];
+        }
+        else {
+            ret += "??";
+        }
+        if (hand[1].revealed()) {
+            ret += ", " + hand[1];
+        }
+        else {
+            ret+= ", ??";
+        }
+        return ret;
+    }
+
+    public String toStringBot() {
+        return new String(handStringBot() + "\n" + 
+                "Coins: " + coins +"\n" +
+                "Actions: " + possibleActionsString() + "\n");
+    }
+    
     @Override
     public CardType getActionChallengeResponse(Action action) {
         
@@ -81,7 +104,7 @@ public class RandomBot extends Player {
     
     @Override
     public Reaction getUserReaction() {
-        int choice = Math.abs(rand.nextInt() % actions.size());
+        int choice = Math.abs(rand.nextInt() % reactions.size());
         
         return reactions.get(choice);
     }
