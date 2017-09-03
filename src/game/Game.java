@@ -233,13 +233,19 @@ public class Game {
         if (CardType.action(response) == anAction) {
             System.out.println("Challenge from " + challenger.name + " failed");
             deck.add(challenged.exchangeCard(response, deck.pop()));
-            challenger.revealCard();
+            
+            //Updates AI memory of revealed cards if challenged is AI.
+            //Only reveals card otherwise
+            challenged.updateRevealedCounter(challenger.revealCard());
             return false;
         }
         //Challenge succeeds
         else {
             System.out.println("Challenge from " + challenger.name + " succeeded");
-            challenged.revealCard(response);
+            
+            //Updates AI memory of revealed card if challenger is AI.
+            //Only reveals card otherwise
+            challenger.updateRevealedCounter(challenged.revealCard(response));
             return true;
         }
         
@@ -253,14 +259,19 @@ public class Game {
         //Challenge fails
         if (CardType.reaction(response) == aReaction) {
             System.out.println("Challenge from " + challenger.name + " failed");
+            
             deck.add(challenged.exchangeCard(response, deck.pop()));
-            challenger.revealCard();
+            
+            //Update revealed card counter if challenged is AI
+            challenged.updateRevealedCounter(challenger.revealCard());
             return false;
         }
         //Challenge succeeds
         else {
             System.out.println("Challenge from " + challenger.name +  " succeeded");
-            challenged.revealCard(response);
+            
+            //Update revealed card counter if challenger is AI
+            challenger.updateRevealedCounter(challenged.revealCard(response));
             return true;
         }
         

@@ -312,6 +312,13 @@ public class Player {
             System.out.println(i + ": " + reactions.get(i).toString());
         }
     }
+    
+    /**
+     * No-op; intended for use by AI subclasses 
+     */
+    public void updateRevealedCounter(Card revealedCard) {
+        
+    }
 
     public boolean wantsChallengeReaction(Reaction aReaction) {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));

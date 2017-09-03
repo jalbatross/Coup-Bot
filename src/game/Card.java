@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Card {
     public CardType influence;
-    private boolean revealed;
+    protected boolean revealed;
     
     public Card() {
         influence = null;
