@@ -348,12 +348,18 @@ public class Player {
 
     public void setPossibleReactions(Action anAction) {
         this.reactions = new ArrayList<Reaction>();
+        
+        //All actions can be challenged except Foreign Aid
         if (anAction != Action.FOREIGN_AID) {
             reactions.add(Reaction.CHALLENGE);
         }
+        
+        //If there are no blocks possible, finish adding reactions
         if (!anAction.blockable()) {
             return;
         }
+        
+        //Otherwise add the correct reaction based on the action
         reactions.add(Action.correspondingReaction(anAction));
         
     }

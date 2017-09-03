@@ -93,8 +93,8 @@ public class Game {
         System.out.println("\n--- " + player1.name + "'s info ---");
         System.out.println(player1.toString());
         System.out.println("--- " + player2.name + "'s info ---");
-        if (player2 instanceof RandomBot) {
-            System.out.println(((RandomBot) player2).toStringBot());
+        if (player2 instanceof SmarterRandomBot) {
+            System.out.println(((SmarterRandomBot) player2).toStringBot());
         }
         else {
             System.out.println(player2.toString());
@@ -113,7 +113,7 @@ public class Game {
     
     public static void main (String[] args) throws Exception {
         Player player1 = new Player("Alice");
-        RandomBot player2 = new RandomBot();
+        SmarterRandomBot player2 = new SmarterRandomBot();
         
         Game game = new Game(player1,player2);
 

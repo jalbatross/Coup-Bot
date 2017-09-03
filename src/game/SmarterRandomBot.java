@@ -7,17 +7,25 @@ import java.util.ArrayList;
 import java.util.SplittableRandom;
 
 /**
- * A simple bot that performs a random action at every opportunity.
+ * A simple bot that performs a random possible action at every opportunity.
  * 
  * @author @jalbatross(Joey A.)
  *
  */
 
-public class RandomBot extends Player {
+public class SmarterRandomBot extends Player {
     public SplittableRandom rand;
-    public RandomBot() {
+    
+    //Counters for cards the AI knows to be revealed
+    private int assassinCounter = 0;
+    private int dukeCounter = 0;
+    private int ambassadorCounter = 0;
+    private int captainCounter = 0;
+    private int contessaCounter = 0;
+    
+    public SmarterRandomBot() {
         super();
-        this.name = "RandomBot";
+        this.name = "SmarterRandomBot";
         rand = new SplittableRandom();
     }
     
@@ -90,10 +98,39 @@ public class RandomBot extends Player {
             choice = (choice + 1) % 2;
         }
         
+        updateRevealedCounter(hand[choice]);
         hand[choice].reveal();
         return hand[choice];
     }
     
+    /**
+     * Updates the appropriate counter for the AI's memory based on 
+     * cardRevealed
+     * @param cardRevealed    A revealed card
+     */
+    public void updateRevealedCounter(Card cardRevealed) {
+        switch(cardRevealed.influence) {
+            case DUKE:
+                dukeCounter++;
+                break;
+            case ASSASSIN:
+                assassinCounter++;
+                break;
+            case CONTESSA:
+                contessaCounter++;
+                break;
+            case AMBASSADOR:
+                ambassadorCounter++;
+                break;
+            case CAPTAIN:
+                captainCounter++;
+                break;
+            default:
+                //Shouldn't reach here    
+        }
+        
+    }
+
     @Override
     public Action getUserAction() {
         int choice = Math.abs(rand.nextInt() % actions.size());
@@ -118,6 +155,27 @@ public class RandomBot extends Player {
     
     @Override
     public boolean wantsReaction(Action anAction) {
+        
+        //Always react to impossible scenarios
+        if (anAction == Action.ASSASSINATE && assassinCounter  == 3) {
+            return true;
+        }
+        if (anAction == Action.STEAL && captainCounter == 3) {
+            return true;
+        }
+        if(anAction == Action.EXCHANGE && ambassadorCounter == 3) {
+            return true;
+        }
+        if (anAction == Action.TAX && dukeCounter == 3) {
+            return true;
+        }
+        
+        //No possible reaction in this case, so we don't act
+        if (anAction == Action.FOREIGN_AID && dukeCounter == 3) {
+            return false;
+        }
+        
+        //Otherwise act randomly
         int choice = Math.abs(rand.nextInt() % 2);
         
         return choice == 1 ? true: false;
@@ -194,4 +252,75 @@ public class RandomBot extends Player {
         }
        
     }
+    
+    /**
+     * Identical to the super setPossibleActions, except omits actions that
+     * are not possible due to all copies of the card being revealed.
+     */
+    @Override
+    public void setPossibleActions() {
+        this.actions = new ArrayList<Action>();
+        
+        if (coins >=10) {
+            this.actions.add(Action.COUP);
+            return;
+        }
+        
+        for (Action enumActions : Action.values()) {
+            if (enumActions == Action.ASSASSINATE && coins < 3) {
+                continue;
+            }
+            if (enumActions == Action.COUP && coins < 7) {
+                continue;
+            }
+            
+            //Don't do actions that are known to be impossible
+            if (enumActions == Action.ASSASSINATE && assassinCounter == 3) {
+                continue;
+            }
+            if (enumActions == Action.TAX && dukeCounter == 3) {
+                continue;
+            }
+            if (enumActions == Action.STEAL && captainCounter == 3) {
+                continue;
+            }
+            if (enumActions == Action.EXCHANGE && ambassadorCounter == 3) {
+                continue;
+            }
+            
+            this.actions.add(enumActions);
+        }
+    }
+    
+    @Override
+    public void setPossibleReactions(Action anAction) {
+        
+        this.reactions = new ArrayList<Reaction>();
+        
+        //All actions can be challenged except Foreign Aid
+        if (anAction != Action.FOREIGN_AID && dukeCounter < 3) {
+            reactions.add(Reaction.CHALLENGE);
+        }
+        
+        //If there are no blocks possible, finish adding reactions
+        if (!anAction.blockable()) {
+            return;
+        }
+        
+        //Don't do impossible reactions
+        if (Action.correspondingReaction(anAction) == Reaction.BLOCK_ASSASSINATE &&
+                contessaCounter == 3) {
+            return;
+        }
+        if (Action.correspondingReaction(anAction) == Reaction.BLOCK_STEAL &&
+                captainCounter == 3 &&
+                ambassadorCounter == 3) {
+            return;
+        }
+        
+        //Otherwise add the correct reaction based on the action
+        reactions.add(Action.correspondingReaction(anAction));
+    }
+    
+    
 }
