@@ -133,21 +133,31 @@ public class Game {
             System.out.println(player2.name + " won!");
         }
     }
+    
     private void nextPlayer() {
         turnPlayer = (turnPlayer == player1) ? player2: player1;
         opponent = (turnPlayer == player1 ) ? player2: player1;
         
         turnStack = new Stack<Object>();
     }
+    
     private void gameLoop() throws Exception {
         System.out.println("--- Beginning " + turnPlayer.name + "'s turn ---");
         turnPlayer.setPossibleActions();
         
         Action turnAction = turnPlayer.getUserAction();
         
-        //Immediately pay 3 coins
+        //Immediately pay 3 coins if the action is assassinate
         if (turnAction == Action.ASSASSINATE) {
             turnPlayer.setCoins(turnPlayer.coins() - 3);
+        }
+        
+        //Reset deck counters for the AI if the deck was shuffled by
+        //its opponent
+        if (turnAction == Action.EXCHANGE && 
+                opponent instanceof SmarterRandomBot) {
+            SmarterRandomBot bot = (SmarterRandomBot) opponent;
+            bot.resetDeckCounters();
         }
         
         turnStack.push(turnAction);
@@ -233,10 +243,7 @@ public class Game {
         if (CardType.action(response) == anAction) {
             System.out.println("Challenge from " + challenger.name + " failed");
             
-            System.out.println("Deck before exchange: " + deckString()); 
-            challenged.exchangeCard(response, deck);
-            
-            System.out.println("Deck after exchange: " + deckString());
+            challenged.exchangeCard(response, deck);    
             
             //Updates AI memory of revealed cards if challenged is AI.
             //Only reveals card otherwise
@@ -264,10 +271,7 @@ public class Game {
         if (CardType.reaction(response) == aReaction) {
             System.out.println("Challenge from " + challenger.name + " failed");
             
-            System.out.println("Deck before exchange: " + deckString()); 
             challenged.exchangeCard(response, deck);
-            
-            System.out.println("Deck after exchange: " + deckString());
             
             //Update revealed card counter if challenged is AI
             challenged.updateRevealedCounter(challenger.revealCard());

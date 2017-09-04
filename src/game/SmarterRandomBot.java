@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.SplittableRandom;
+import java.util.Stack;
 
 /**
  * A simple bot that performs a random possible action at every opportunity
@@ -29,6 +31,12 @@ public class SmarterRandomBot extends Player {
     private int ambassadorCounterDeck = 0;
     private int captainCounterDeck = 0;
     private int contessaCounterDeck = 0;
+    
+    private int assassinCounterHand = 0;
+    private int dukeCounterHand = 0;
+    private int ambassadorCounterHand = 0;
+    private int captainCounterHand = 0;
+    private int contessaCounterHand = 0;
     
     public SmarterRandomBot() {
         super();
@@ -105,7 +113,12 @@ public class SmarterRandomBot extends Player {
             choice = (choice + 1) % 2;
         }
         
+        //Update revealed counter
         updateRevealedCounter(hand[choice]);
+        
+        //If a card is revealed it doesn't count as being in hand anymore
+        decrementHandCounter(hand[choice]);
+        
         hand[choice].reveal();
         return hand[choice];
     }
@@ -176,6 +189,32 @@ public class SmarterRandomBot extends Player {
         }
     }
     
+    public void setInDeckCounter(CardType typeInDeck, int val) {
+        if (val < 1 || val > 2) {
+            return;
+        }
+        
+        switch(typeInDeck) {
+            case DUKE:
+                dukeCounterDeck = val;
+                break;
+            case ASSASSIN:
+                assassinCounterDeck = val;
+                break;
+            case CONTESSA:
+                contessaCounterDeck = val;
+                break;
+            case AMBASSADOR:
+                ambassadorCounterDeck = val;
+                break;
+            case CAPTAIN:
+                captainCounterDeck = val;
+                break;
+            default:
+                //Shouldn't reach here   
+        }
+    }
+    
     /**
      * Resets card in deck counters, necessary when the deck is shuffled or
      * a card is extracted from the deck.
@@ -186,6 +225,100 @@ public class SmarterRandomBot extends Player {
         ambassadorCounterDeck = 0;
         contessaCounterDeck = 0;
         assassinCounterDeck = 0;
+    }
+    
+    @Override
+    public void setHand(Card card1, Card card2) {
+        super.setHand(card1, card2);
+        incrementHandCounter(card1);
+        incrementHandCounter(card2);
+    }
+    
+    /**
+     * Increases the appropriate counter for the AI's memory for a card
+     * in their hand
+     * 
+     * @param cardInHand a card in SmarterRandomBot's hand
+     */
+    private void incrementHandCounter(Card cardInHand) {
+        incrementHandCounter(cardInHand.influence);
+    }
+    
+    /**
+     * Increases the appropriate counter for the AI's memory for a card
+     * in their hand
+     * 
+     * @param typeInDeck   Type of card in hand
+     */
+    private void incrementHandCounter(CardType typeInHand) {
+        switch(typeInHand) {
+            case DUKE:
+                dukeCounterHand++;
+                break;
+            case ASSASSIN:
+                assassinCounterHand++;
+                break;
+            case CONTESSA:
+                contessaCounterHand++;
+                break;
+            case AMBASSADOR:
+                ambassadorCounterHand++;
+                break;
+            case CAPTAIN:
+                captainCounterHand++;
+                break;
+            default:
+                //Shouldn't reach here   
+        }
+    }
+    
+    /**
+     * Updates the appropriate counter for the AI's memory for a card
+     * in their hand
+     * 
+     * @param cardInHand a card in SmarterRandomBot's hand
+     */
+    private void decrementHandCounter(Card cardInHand) {
+        decrementHandCounter(cardInHand.influence);
+    }
+    
+    /**
+     * Updates the appropriate counter for the AI's memory for a card
+     * in their hand
+     * 
+     * @param typeInDeck   Type of card in hand
+     */
+    private void decrementHandCounter(CardType typeInHand) {
+        switch(typeInHand) {
+            case DUKE:
+                dukeCounterHand--;
+                break;
+            case ASSASSIN:
+                assassinCounterHand--;
+                break;
+            case CONTESSA:
+                contessaCounterHand--;
+                break;
+            case AMBASSADOR:
+                ambassadorCounterHand--;
+                break;
+            case CAPTAIN:
+                captainCounterHand--;
+                break;
+            default:
+                //Shouldn't reach here   
+        }
+    }
+    
+    /**
+     * Resets in hand counters
+     */
+    private void resetHandCounters() {
+        ambassadorCounterHand = 0;
+        assassinCounterHand = 0;
+        captainCounterHand = 0;
+        contessaCounterHand = 0;
+        dukeCounterHand = 0;
     }
 
     @Override
@@ -203,31 +336,52 @@ public class SmarterRandomBot extends Player {
         return reactions.get(choice);
     }
     
+    /**
+     * SmarterRandomBot will always challenge reactions that it knows are
+     * impossible.
+     */
     @Override
     public boolean wantsChallengeReaction(Reaction aReaction) {
+        if (aReaction == Reaction.BLOCK_ASSASSINATE &&
+                contessaCounter + contessaCounterDeck + contessaCounterHand == 3) {
+            return true;
+        }
+        if (aReaction == Reaction.BLOCK_FOREIGN_AID && 
+                dukeCounter + dukeCounterDeck + dukeCounterHand == 3 ) {
+            return true;
+        }
+        if (aReaction == Reaction.BLOCK_STEAL && 
+                captainCounter + captainCounterDeck + captainCounterHand  == 3 &&
+                ambassadorCounter + ambassadorCounterDeck + ambassadorCounterHand == 3) {
+            return true;
+        }
+        
         int choice = Math.abs(rand.nextInt() % 2);
         
         return choice == 1 ? true: false;
     }
     
+    /**
+     * SmarterRandomBot will always react to impossible scenarios.
+     */
     @Override
     public boolean wantsReaction(Action anAction) {
         
         //Always react to impossible scenarios
         if (anAction == Action.ASSASSINATE && 
-                assassinCounter + assassinCounterDeck   == 3) {
+                assassinCounter + assassinCounterDeck + assassinCounterHand == 3) {
             return true;
         }
         if (anAction == Action.STEAL && 
-                captainCounter + captainCounterDeck == 3) {
+                captainCounter + captainCounterDeck + captainCounterHand == 3) {
             return true;
         }
         if(anAction == Action.EXCHANGE && 
-                ambassadorCounter + ambassadorCounterDeck == 3) {
+                ambassadorCounter + ambassadorCounterDeck + ambassadorCounterHand == 3) {
             return true;
         }
         if (anAction == Action.TAX && 
-                dukeCounter + dukeCounterDeck == 3) {
+                dukeCounter + dukeCounterDeck + dukeCounterHand == 3) {
             return true;
         }
         
@@ -245,7 +399,8 @@ public class SmarterRandomBot extends Player {
     @Override
     public Card[] ambassadorExchange(Card card1, Card card2) {
         
-        resetDeckCounters();
+        //Will be updated when we choose cards
+        resetHandCounters();
         
         System.out.println("Your hand: " + handString());
         System.out.println("Cards from the deck: " + card1.toString() 
@@ -291,11 +446,19 @@ public class SmarterRandomBot extends Player {
             for(int i = 0, j =0; i < choices.size(); i++) {
                 if (i != choice1 && i != choice2) {
                     returnedCards[j] = choices.get(i);
-                    
-                    //Update internal memory - we know a card in the deck
-                    updateInDeckCounter(returnedCards[j]);
                     j++;
                 }
+            }
+            
+            //If the cards are the same, update in deck counter
+            if (returnedCards[0].influence == returnedCards[1].influence) {
+                setInDeckCounter(returnedCards[0].influence, 2);
+            }
+            //If the cards are different, only update the counters if we
+            //haven't seen the card in the deck yet
+            else {
+                updateInDeckCounterConditionally(returnedCards[0].influence);
+                updateInDeckCounterConditionally(returnedCards[1].influence);
             }
             
             return returnedCards;
@@ -309,6 +472,9 @@ public class SmarterRandomBot extends Player {
             for (int i = 0; i < 2; i++) {
                 if (!hand[i].revealed()) {
                     hand[i] = choices.get(choice);
+                    
+                    //Increment in hand counter
+                    incrementHandCounter(hand[i]);
                 }
             }
             
@@ -316,14 +482,42 @@ public class SmarterRandomBot extends Player {
             Card[] returnedCards = new Card[2];
             
             //Update cards we know to be in the deck
-            updateInDeckCounter(returnedCards[0]);
-            updateInDeckCounter(returnedCards[1]);
+            updateInDeckCounterConditionally(returnedCards[0].influence);
+            updateInDeckCounterConditionally(returnedCards[1].influence);
             
             return choices.toArray(returnedCards);
         }
        
     }
     
+    /**
+     * Updates the in deck counter for the influence if the card hasn't
+     * been seen by the AI before.
+     * @param influence an influence (card type)
+     */
+    private void updateInDeckCounterConditionally(CardType influence) {
+        switch (influence) {
+            case AMBASSADOR:
+                ambassadorCounterDeck = (ambassadorCounterDeck == 0) ? 1: 0;
+                break;
+            case ASSASSIN:
+                assassinCounterDeck = (assassinCounterDeck == 0) ? 1 : 0;
+                break;
+            case CAPTAIN:
+                captainCounterDeck = (captainCounterDeck == 0) ? 1: 0;
+                break;
+            case CONTESSA:
+                contessaCounterDeck = (contessaCounterDeck == 0) ? 1 : 0;
+                break;
+            case DUKE:
+                dukeCounterDeck = (dukeCounterDeck == 0) ? 1: 0;
+                break;
+            default:
+                //Shouldn't reach here
+        }
+        
+    }
+
     /**
      * Identical to the super setPossibleActions, except omits actions that
      * are not possible due to all copies of the card being revealed.
@@ -369,7 +563,7 @@ public class SmarterRandomBot extends Player {
         this.reactions = new ArrayList<Reaction>();
         
         //All actions can be challenged except Foreign Aid
-        if (anAction != Action.FOREIGN_AID && dukeCounter < 3) {
+        if (anAction != Action.FOREIGN_AID) {
             reactions.add(Reaction.CHALLENGE);
         }
         
@@ -388,6 +582,10 @@ public class SmarterRandomBot extends Player {
                 ambassadorCounter == 3) {
             return;
         }
+        if (Action.correspondingReaction(anAction) == Reaction.BLOCK_FOREIGN_AID &&
+                dukeCounter == 3) {
+            return;
+        }
         
         //Otherwise add the correct reaction based on the action
         reactions.add(Action.correspondingReaction(anAction));
@@ -397,18 +595,45 @@ public class SmarterRandomBot extends Player {
      * Updates in deck counter when we exchange cards into deck
      */
     @Override
-    public Card exchangeCard(CardType type, Card exchangeCard) throws Exception {
-        Card ret = super.exchangeCard(type,  exchangeCard);
+    public void exchangeCard(CardType type, Stack<Card> deck) throws Exception {
+        if (deck == null || deck.size() <= 0) {
+            throw new Exception("Invalid deck during card exchange");
+        }
         
-        //Need to reset deck counters because we don't know if the card
-        //we received is one of the previously counted cards in the 
-        //deck
-        resetDeckCounters();
+        int indexOfCardRemoved = -1;
         
-        //Update the in deck counter
-        updateInDeckCounter(type);
+        //Search the hand for a non-revealed card of CardType type
+        for (int i = 0; i < 2; i++) {
+            if (hand[i].influence == type && !hand[i].revealed()) {
+                deck.add(hand[i]);
+                indexOfCardRemoved = i;
+                break;
+            }
+        }
         
-        return ret;
+        if (indexOfCardRemoved == -1) {
+            throw new Exception("No valid card in hand!");
+        }
+        
+        //Shuffle the deck
+        Collections.shuffle(deck);
+        
+        //Place a new card from the deck into the player's hand
+        hand[indexOfCardRemoved] = deck.pop();
+        
+        //If the AI receives a different card than it had before, update
+        //the appropriate counters
+        if (hand[indexOfCardRemoved].influence != type) {
+            //We know a card of type is now in the deck
+            updateInDeckCounter(type);
+            
+            //Have one less of it in hand
+            decrementHandCounter(type);
+            
+            //Have one more of another type in our hand
+            incrementHandCounter(hand[indexOfCardRemoved].influence);
+        }
+        
     }
     
     
