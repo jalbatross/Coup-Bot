@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.SplittableRandom;
 
 /**
- * A simple bot that performs a random possible action at every opportunity.
+ * A simple bot that performs a random possible action at every opportunity
+ * and watches out for impossible moves.
  * 
  * @author @jalbatross(Joey A.)
  *

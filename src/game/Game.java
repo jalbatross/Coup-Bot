@@ -232,7 +232,11 @@ public class Game {
         //Challenge fails
         if (CardType.action(response) == anAction) {
             System.out.println("Challenge from " + challenger.name + " failed");
-            deck.add(challenged.exchangeCard(response, deck.pop()));
+            
+            System.out.println("Deck before exchange: " + deckString()); 
+            challenged.exchangeCard(response, deck);
+            
+            System.out.println("Deck after exchange: " + deckString());
             
             //Updates AI memory of revealed cards if challenged is AI.
             //Only reveals card otherwise
@@ -260,7 +264,10 @@ public class Game {
         if (CardType.reaction(response) == aReaction) {
             System.out.println("Challenge from " + challenger.name + " failed");
             
-            deck.add(challenged.exchangeCard(response, deck.pop()));
+            System.out.println("Deck before exchange: " + deckString()); 
+            challenged.exchangeCard(response, deck);
+            
+            System.out.println("Deck after exchange: " + deckString());
             
             //Update revealed card counter if challenged is AI
             challenged.updateRevealedCounter(challenger.revealCard());

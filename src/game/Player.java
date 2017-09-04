@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Stack;
 
 public class Player {
     
@@ -58,7 +60,10 @@ public class Player {
      *                     with exchangeCard
      * @throws Exception   No valid card in hand if no suitable card
      *                     was found
+     * @deprecated Use exchangeCard(CardType type, Stack<Card> deck). This 
+     * version is not the correct game mechanic.
      */
+    @Deprecated
     public Card exchangeCard(CardType type, Card exchangeCard) throws Exception {
         
         Card cardInHand = null;
@@ -77,6 +82,42 @@ public class Player {
         }
                 
         return cardInHand; 
+    }
+    
+    /**
+     * Exchanges a card in the player's hand of CardType type with a card
+     * in deck.
+     * 
+     * @param type Type of card in the player's hand.
+     * @param deck Deck of cards.
+     * @throws Exception if deck is empty or response is not in the 
+     * player's hand
+     */
+    public void exchangeCard(CardType type, Stack<Card> deck) throws Exception{
+        if (deck == null || deck.size() <= 0) {
+            throw new Exception("Invalid deck during card exchange");
+        }
+        
+        int indexOfCardRemoved = -1;
+        
+        //Search the hand for a non-revealed card of CardType type
+        for (int i = 0; i < 2; i++) {
+            if (hand[i].influence == type && !hand[i].revealed()) {
+                deck.add(hand[i]);
+                indexOfCardRemoved = i;
+                break;
+            }
+        }
+        
+        if (indexOfCardRemoved == -1) {
+            throw new Exception("No valid card in hand!");
+        }
+        
+        //Shuffle the deck
+        Collections.shuffle(deck);
+        
+        //Place a new card from the deck into the player's hand
+        hand[indexOfCardRemoved] = deck.pop();
     }
     
     public int coins() {
@@ -488,6 +529,8 @@ public class Player {
         
         return count;
     }
+    
+
 
 
 }
