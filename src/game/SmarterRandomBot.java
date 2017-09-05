@@ -482,8 +482,8 @@ public class SmarterRandomBot extends Player {
             Card[] returnedCards = new Card[2];
             
             //Update cards we know to be in the deck
-            updateInDeckCounterConditionally(returnedCards[0].influence);
-            updateInDeckCounterConditionally(returnedCards[1].influence);
+            updateInDeckCounterConditionally(choices.get(0).influence);
+            updateInDeckCounterConditionally(choices.get(1).influence);
             
             return choices.toArray(returnedCards);
         }
