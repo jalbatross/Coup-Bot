@@ -38,6 +38,8 @@ public class SmarterRandomBot extends Player {
     private int captainCounterHand = 0;
     private int contessaCounterHand = 0;
     
+    private double score = 0;
+    
     public SmarterRandomBot() {
         super();
         this.name = "SmarterRandomBot";
@@ -635,6 +637,12 @@ public class SmarterRandomBot extends Player {
         }
         
     }
+   
+    public void updateScore(double d) {
+        score += d;
+    }
+    
+    public double score() {return score;}
     
     
 }

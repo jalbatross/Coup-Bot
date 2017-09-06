@@ -114,14 +114,26 @@ public class Game {
     public static void main (String[] args) throws Exception {
         Player player1 = new Player("Alice");
         SmarterRandomBot player2 = new SmarterRandomBot();
-        
+               
         Game game = new Game(player1,player2);
 
         game.gameState();
         
         //Game loop
         while (player1.isAlive() && player2.isAlive()) {
-            game.gameLoop();
+            int[] aiScores = {0,0};
+            
+            if (player1 instanceof SmarterRandomBot || 
+                    player2 instanceof SmarterRandomBot) {
+                aiScores = getAiStats(player1,player2);
+            }
+            
+            //Do turn
+            game.gameLoop(); 
+            
+            //Evaluate AI's score
+            player2.updateScore(evaluateAI(aiScores, getAiStats(player1, player2)));
+            
             game.nextPlayer();
             game.gameState();
         }
@@ -132,8 +144,46 @@ public class Game {
         else {
             System.out.println(player2.name + " won!");
         }
+        
+        System.out.println("AI Score: " + player2.score());
     }
     
+    /**
+     * Evaluates AI based on a difference between two int[] which correspond
+     * to its scores in gold and card count respectively
+     * 
+     * Stats are represented as int[] of the form {aiGold, numAICardsHidden}
+     * @param statsBeforeTurn ai's stats before beginning of turn
+     * @param aiStats ai's stats after turn
+     * @return A score in the interval [-1,1] based on the change between the 
+     * two stats
+     */
+    private static double evaluateAI(int[] statsBeforeTurn, int[] statsAfterTurn) {
+        double score = 0;
+        
+        //If the AI increased its gold, add to its score
+        if (statsBeforeTurn[0] > statsAfterTurn[0]) {
+            score += 0.1;
+        }
+        
+        //If it decreased, decrease its score by 0.1
+        if (statsBeforeTurn[0] < statsAfterTurn[0]) {
+            score -= 0.1;
+        }
+        
+        //If it lost a card, decrease its score by 0.5 additionally
+        if (statsBeforeTurn[1] < statsAfterTurn[1]) {
+            score -= 0.5;
+        }
+        
+        //If the AI died this turn, give it the lowest score possible
+        if (statsAfterTurn[1] == 0) {
+            return -1;
+        }
+            
+        return score;
+    }
+
     private void nextPlayer() {
         turnPlayer = (turnPlayer == player1) ? player2: player1;
         opponent = (turnPlayer == player1 ) ? player2: player1;
@@ -144,7 +194,7 @@ public class Game {
     private void gameLoop() throws Exception {
         System.out.println("--- Beginning " + turnPlayer.name + "'s turn ---");
         turnPlayer.setPossibleActions();
-        
+       
         Action turnAction = turnPlayer.getUserAction();
         
         //Immediately pay 3 coins if the action is assassinate
@@ -195,9 +245,38 @@ public class Game {
         }
         
         resolveTurnStack(turnPlayer, opponent);
+        
+        //Evaluate computer's performance
+        
+        
         System.out.println("--- Ending " + turnPlayer.name + "'s turn---");
     }
     
+    private static int[] getAiStats(Player p1, Player p2) throws Exception {
+        if (p1 instanceof SmarterRandomBot && p2 instanceof SmarterRandomBot) {
+            throw new Exception("Two AIs detected!!");
+        }
+        
+        if (!(p1 instanceof SmarterRandomBot) && !(p2 instanceof SmarterRandomBot)) {
+            throw new Exception("No AI detected for stats.");
+        }
+        
+        SmarterRandomBot ai = null;
+        if (p1 instanceof SmarterRandomBot) {
+            ai = (SmarterRandomBot) p1;
+        }
+        else {
+            ai = (SmarterRandomBot) p2;
+        }
+        
+        int goldScore = ai.coins();
+        int cardScore = ai.numHiddenCards();
+        
+        int[] scores = {goldScore, cardScore};
+        
+        return scores;
+    }
+
     private void resolveTurnStack(Player turnPlayer, Player target) {
         if (turnStack.isEmpty()) {
             return;
