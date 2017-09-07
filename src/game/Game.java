@@ -152,7 +152,7 @@ public class Game {
      * Evaluates AI based on a difference between two int[] which correspond
      * to its scores in gold and card count respectively
      * 
-     * Stats are represented as int[] of the form {aiGold, numAICardsHidden}
+     * Stats are represented as int[] of the form {aiGold, numAICardsHidden, numOppCardsHidden}
      * @param statsBeforeTurn ai's stats before beginning of turn
      * @param aiStats ai's stats after turn
      * @return A score in the interval [-1,1] based on the change between the 
@@ -174,6 +174,16 @@ public class Game {
         //If it lost a card, decrease its score by 0.5 additionally
         if (statsBeforeTurn[1] < statsAfterTurn[1]) {
             score -= 0.5;
+        }
+        
+        //If its opponent lost a card, increase its score by 0.5
+        if (statsBeforeTurn[2] < statsAfterTurn[2]) {
+            score += 0.5;
+        }
+        
+        //If it killed the opponent, give it the maximum score for the round
+        if (statsBeforeTurn[2] == 0) {
+            return 1;
         }
         
         //If the AI died this turn, give it the lowest score possible
@@ -252,6 +262,13 @@ public class Game {
         System.out.println("--- Ending " + turnPlayer.name + "'s turn---");
     }
     
+    /**
+     * 
+     * @param p1
+     * @param p2
+     * @return int[] of ai's stats = {aiPlayerGold, aiPlayerCardsAlive, aiOppCardsAlive}
+     * @throws Exception
+     */
     private static int[] getAiStats(Player p1, Player p2) throws Exception {
         if (p1 instanceof SmarterRandomBot && p2 instanceof SmarterRandomBot) {
             throw new Exception("Two AIs detected!!");
@@ -262,17 +279,21 @@ public class Game {
         }
         
         SmarterRandomBot ai = null;
+        Player human = null;
         if (p1 instanceof SmarterRandomBot) {
             ai = (SmarterRandomBot) p1;
+            human = p2;
         }
         else {
             ai = (SmarterRandomBot) p2;
+            human = p1;
         }
         
         int goldScore = ai.coins();
-        int cardScore = ai.numHiddenCards();
+        int cardsAliveScore = ai.numHiddenCards();
+        int opponentAliveScore = human.numHiddenCards();
         
-        int[] scores = {goldScore, cardScore};
+        int[] scores = {goldScore, cardsAliveScore, opponentAliveScore};
         
         return scores;
     }
