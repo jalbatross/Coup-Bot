@@ -121,7 +121,7 @@ public class Game {
         
         //Game loop
         while (player1.isAlive() && player2.isAlive()) {
-            int[] aiScores = {0,0};
+            int[] aiScores = {0,0,0};
             
             if (player1 instanceof SmarterRandomBot || 
                     player2 instanceof SmarterRandomBot) {
@@ -182,7 +182,7 @@ public class Game {
         }
         
         //If it killed the opponent, give it the maximum score for the round
-        if (statsBeforeTurn[2] == 0) {
+        if (statsAfterTurn[2] == 0) {
             return 1;
         }
         
