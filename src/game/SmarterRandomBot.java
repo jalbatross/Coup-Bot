@@ -417,6 +417,11 @@ public class SmarterRandomBot extends Player {
             return false;
         }
         
+        //Always react to Assassinate if we have one card left
+        if (anAction == Action.ASSASSINATE && numHiddenCards() == 1) {
+            return true;
+        }
+        
         //Otherwise act randomly
         int choice = Math.abs(rand.nextInt() % 2);
         
