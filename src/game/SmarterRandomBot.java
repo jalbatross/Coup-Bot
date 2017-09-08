@@ -69,14 +69,26 @@ public class SmarterRandomBot extends Player {
                 "Actions: " + possibleActionsString() + "\n");
     }
     
+    /**
+     * Adjusted so that the AI always opts to reveal the card in hand 
+     * corresponding to the action if possible.
+     */
     @Override
     public CardType getActionChallengeResponse(Action action) {
         
-        System.out.println(name + ", your action of " + action + " is being challenged");
-        System.out.println("Reveal a card:\n" + hiddenCardsString());
+        System.out.println("AI responding to an action challenge");
         
-        System.out.println("Enter a number corresponding to your choice");
-        
+        //Check for a card in hand corresponding to correct action
+        //Choose that card if possible
+        for (int i = 0; i < hand.length; i++) {
+            if (CardType.action(hand[i].influence) == action &&
+                    !hand[i].revealed()) {
+                return hand[i].influence;
+                
+            }
+        }
+       
+        //Reveal this card. Otherwise choose randomly.
         int choice = Math.abs(rand.nextInt() % 2);
         
         if (hand[choice].revealed()) {
@@ -86,13 +98,26 @@ public class SmarterRandomBot extends Player {
         return hand[choice].influence;
     }
     
+    /**
+     * Adjusted so that the AI always opts to reveal the card in hand 
+     * corresponding to the reaction if possible.
+     */
     @Override
     public CardType getReactionChallengeResponse(Reaction reaction) {
-        System.out.println(name + ", your reaction of " + reaction + " is being challenged");
-        System.out.println("Reveal a card:\n" + hiddenCardsString());
         
-        System.out.println("Enter a number corresponding to your choice");
+        System.out.println("AI responding to a reactrion challenge");
         
+        //Check for a card in hand corresponding to correct reaction
+        //Choose that card if possible
+        for (int i = 0; i < hand.length; i++) {
+            if (CardType.reaction(hand[i].influence) == reaction &&
+                    !hand[i].revealed()) {
+                return hand[i].influence;
+                
+            }
+        }
+       
+        //Reveal this card. Otherwise choose randomly.
         int choice = Math.abs(rand.nextInt() % 2);
         
         if (hand[choice].revealed()) {

@@ -146,6 +146,7 @@ public class Game {
         }
         
         System.out.println("AI Score: " + player2.score());
+        System.out.println("AI Hand: " + player2.handString());
     }
     
     /**
