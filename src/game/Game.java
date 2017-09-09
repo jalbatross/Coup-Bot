@@ -229,11 +229,12 @@ public class Game {
             turnStack.push(response);
             if (response == Reaction.CHALLENGE) {
                 turnStack.pop();
+
                 if (resolveActionChallenge(turnPlayer, opponent, (Action) turnStack.peek())) {
                     turnStack.clear();
                 }
                 else {
-                    if (turnAction.blockable() && opponent.wantsReaction(turnAction)) {
+                    if (turnAction.blockable() && opponent.wantsReaction(turnAction) && opponent.isAlive()) {
                         opponent.setBlockReaction(turnAction);
                         turnStack.push(opponent.getUserReaction());
                     }
