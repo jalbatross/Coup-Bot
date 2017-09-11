@@ -3,7 +3,9 @@ package game;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.SplittableRandom;
 import java.util.Stack;
@@ -38,11 +40,35 @@ public class SmarterRandomBot extends Player {
     private int captainCounterHand = 0;
     private int contessaCounterHand = 0;
     
+    /**
+     * 0: Income
+     * 1: Foreign Aid
+     * 2: Coup
+     * 3: Tax
+     * 4: Assassinate
+     * 5: Exchange
+     * 6: Steal
+     */
+    private double[] actionProbabilities = new double[7];
+    
+    /**
+     * 0: Challenge
+     * 1: Block steal
+     * 2: Block assassinate 
+     * 3: Block foreign aid
+     */
+    private double[] reactionProbabilities = new double[4];
+    
+    private double challengeProbability = 0;
+    
     private double score = 0;
     
     public SmarterRandomBot() {
         super();
         this.name = "SmarterRandomBot";
+        
+        actionProbabilities = new double[7];
+        reactionProbabilities = new double[4];
         rand = new SplittableRandom();
     }
     
@@ -558,8 +584,17 @@ public class SmarterRandomBot extends Player {
     public void setPossibleActions() {
         this.actions = new ArrayList<Action>();
         
+        ArrayList<Integer> indices = new ArrayList<Integer>();
+        
+        //Reset probabilities for actions
+        actionProbabilities = new double[7];
+        
         if (coins >=10) {
             this.actions.add(Action.COUP);
+            
+            //Only Coup is possible
+            actionProbabilities[2] = 1;
+            printActionProbabilities();
             return;
         }
         
@@ -586,9 +621,32 @@ public class SmarterRandomBot extends Player {
             }
             
             this.actions.add(enumActions);
+            indices.add(enumActions.ordinal());
+            System.out.println("added index: " + enumActions.ordinal());
         }
+        //Count the number of actions
+        double len = actions.size();
+        double defaultProbability = 1 / len;
+        
+        for (int index : indices) {
+            actionProbabilities[index] = defaultProbability;
+        }
+        printActionProbabilities();
     }
     
+    private void printActionProbabilities() {
+        DecimalFormat p = new DecimalFormat("0.00000");
+       System.out.println("Probability of actions for AI: " );
+       System.out.println("INCOME: " + p.format(actionProbabilities[0]));
+       System.out.println("FOREIGN AID: " + p.format(actionProbabilities[1]));
+       System.out.println("COUP: " + p.format(actionProbabilities[2]));
+       System.out.println("TAX: " + p.format(actionProbabilities[3]));
+       System.out.println("ASSASSINATE: " + p.format(actionProbabilities[4]));
+       System.out.println("EXCHANGE: " + p.format(actionProbabilities[5]));
+       System.out.println("STEAL: " + p.format(actionProbabilities[6]));
+        
+    }
+
     @Override
     public void setPossibleReactions(Action anAction) {
         
