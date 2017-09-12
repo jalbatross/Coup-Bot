@@ -378,6 +378,21 @@ public class SmarterRandomBot extends Player {
     public Action getUserAction() {
         int choice = Math.abs(rand.nextInt() % actions.size());
         
+        //Probability version, WIP
+        double num = rand.nextDouble() * 1000;
+        double count = 1000;
+        for (int i = 0; i < this.actionProbabilities.length; i++) {
+            if (actionProbabilities[i] == 0) {
+                continue;
+            }
+            count = count - (actionProbabilities[i] * 1000);
+            if (count - num <= 0) {
+                //Return action corresponding to the index of actionProbabilities
+                System.out.println("Action index chosen for AI: " + i);
+                break;
+            }
+        }
+        
         return actions.get(choice);
         
     }
@@ -622,7 +637,6 @@ public class SmarterRandomBot extends Player {
             
             this.actions.add(enumActions);
             indices.add(enumActions.ordinal());
-            System.out.println("added index: " + enumActions.ordinal());
         }
         //Count the number of actions
         double len = actions.size();
@@ -635,7 +649,7 @@ public class SmarterRandomBot extends Player {
     }
     
     private void printActionProbabilities() {
-        DecimalFormat p = new DecimalFormat("0.00000");
+       DecimalFormat p = new DecimalFormat("0.00000");
        System.out.println("Probability of actions for AI: " );
        System.out.println("INCOME: " + p.format(actionProbabilities[0]));
        System.out.println("FOREIGN AID: " + p.format(actionProbabilities[1]));
@@ -652,13 +666,25 @@ public class SmarterRandomBot extends Player {
         
         this.reactions = new ArrayList<Reaction>();
         
+        ArrayList<Integer> indices = new ArrayList<Integer>();
+        
+        //Reset probabilities for reactions
+        reactionProbabilities = new double[4];
+        
+        
         //All actions can be challenged except Foreign Aid
         if (anAction != Action.FOREIGN_AID) {
             reactions.add(Reaction.CHALLENGE);
+            indices.add(Reaction.CHALLENGE.ordinal());
         }
         
         //If there are no blocks possible, finish adding reactions
         if (!anAction.blockable()) {
+            for (int index : indices) {
+                reactionProbabilities[index] = 1;
+            }
+            
+            printReactionProbabilities();
             return;
         }
         
@@ -679,7 +705,26 @@ public class SmarterRandomBot extends Player {
         
         //Otherwise add the correct reaction based on the action
         reactions.add(Action.correspondingReaction(anAction));
+        indices.add(Action.correspondingReaction(anAction).ordinal());
+        
+        double defaultProbability = 1 / indices.size();
+        
+        for (int index : indices) {
+            reactionProbabilities[index] = defaultProbability;
+        }
+        printReactionProbabilities();
+        
     }
+    
+    private void printReactionProbabilities() {
+        DecimalFormat p = new DecimalFormat("0.00000");
+        System.out.println("Probability of reactions for AI: " );
+        System.out.println("CHALLENGE: " + p.format(reactionProbabilities[0]));
+        System.out.println("BLOCK STEAL: " + p.format(reactionProbabilities[1]));
+        System.out.println("BLOCK_ASSASSINATE: " + p.format(reactionProbabilities[2]));
+        System.out.println("BLOCK_FOREIGN_AID: " + p.format(reactionProbabilities[3]));
+         
+     }
     
     /**
      * Updates in deck counter when we exchange cards into deck
