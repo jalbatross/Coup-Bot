@@ -50,6 +50,8 @@ public class SmarterRandomBot extends Player {
      * 6: Steal
      */
     private double[] actionProbabilities = new double[7];
+    private Action[] actionsArr = {Action.INCOME, Action.FOREIGN_AID, Action.COUP,
+            Action.TAX, Action.ASSASSINATE, Action.EXCHANGE, Action.STEAL};
     
     /**
      * 0: Challenge
@@ -376,9 +378,7 @@ public class SmarterRandomBot extends Player {
 
     @Override
     public Action getUserAction() {
-        int choice = Math.abs(rand.nextInt() % actions.size());
-        
-        //Probability version, WIP
+        //Probability version
         double num = rand.nextDouble() * 1000;
         double count = 1000;
         for (int i = 0; i < this.actionProbabilities.length; i++) {
@@ -388,13 +388,13 @@ public class SmarterRandomBot extends Player {
             count = count - (actionProbabilities[i] * 1000);
             if (count - num <= 0) {
                 //Return action corresponding to the index of actionProbabilities
-                System.out.println("Action index chosen for AI: " + i);
-                break;
+                System.out.println("Action chosen for AI: " + actionsArr[i]);
+                return actionsArr[i];
             }
         }
         
-        return actions.get(choice);
-        
+        System.out.println("ERROR: INVALID USER ACTION");
+        return actionsArr[9];
     }
     
     @Override
