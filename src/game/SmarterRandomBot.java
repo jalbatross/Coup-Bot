@@ -60,6 +60,9 @@ public class SmarterRandomBot extends Player {
      * 3: Block foreign aid
      */
     private double[] reactionProbabilities = new double[4];
+    private Reaction[] reactionsArr = {Reaction.CHALLENGE, Reaction.BLOCK_STEAL,
+            Reaction.BLOCK_ASSASSINATE, Reaction.BLOCK_FOREIGN_AID
+    };
     
     private double challengeProbability = 0;
     
@@ -399,9 +402,21 @@ public class SmarterRandomBot extends Player {
     
     @Override
     public Reaction getUserReaction() {
-        int choice = Math.abs(rand.nextInt() % reactions.size());
-        
-        return reactions.get(choice);
+        //Probability version
+        double num = rand.nextDouble() * 1000;
+        double count = 1000;
+        for (int i = 0; i < this.reactionProbabilities.length; i++) {
+            if (reactionProbabilities[i] == 0) {
+                continue;
+            }
+            count = count - (reactionProbabilities[i] * 1000);
+            if (count - num <= 0) {
+                //Return reaction corresponding to the index of reactionProbabilities
+                System.out.println("Action chosen for AI: " + reactionsArr[i]);
+                return reactionsArr[i];
+            }
+        }
+        return reactionsArr[-1];
     }
     
     /**
