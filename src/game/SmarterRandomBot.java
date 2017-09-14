@@ -64,7 +64,7 @@ public class SmarterRandomBot extends Player {
             Reaction.BLOCK_ASSASSINATE, Reaction.BLOCK_FOREIGN_AID
     };
     
-    private double challengeProbability = 0;
+    private double reactProbability = 0;
     
     private double score = 0;
     
@@ -416,6 +416,8 @@ public class SmarterRandomBot extends Player {
                 return reactionsArr[i];
             }
         }
+        
+        //Make error if we reach here, should be impossible
         return reactionsArr[-1];
     }
     
@@ -450,6 +452,9 @@ public class SmarterRandomBot extends Player {
     @Override
     public boolean wantsReaction(Action anAction) {
         
+        //Reset propensity of reaction
+        reactProbability = 0;
+        
         //Always react to impossible scenarios
         if (anAction == Action.ASSASSINATE && 
                 assassinCounter + assassinCounterDeck + assassinCounterHand == 3) {
@@ -478,10 +483,19 @@ public class SmarterRandomBot extends Player {
             return true;
         }
         
-        //Otherwise act randomly
-        int choice = Math.abs(rand.nextInt() % 2);
         
-        return choice == 1 ? true: false;
+        //Otherwise act randomly
+        reactProbability = 0.5;
+        double guessNum = rand.nextDouble() * 1000;
+        System.out.println("AI propensity to react: " + reactProbability);
+        
+        if ((500 - guessNum) <= 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+        
     }
     
     @Override
