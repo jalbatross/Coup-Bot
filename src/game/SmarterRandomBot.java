@@ -489,7 +489,7 @@ public class SmarterRandomBot extends Player {
         double guessNum = rand.nextDouble() * 1000;
         System.out.println("AI propensity to react: " + reactProbability);
         
-        if ((500 - guessNum) <= 0) {
+        if ( ( (reactProbability * 1000) - guessNum) <= 0) {
             return true;
         }
         else {
