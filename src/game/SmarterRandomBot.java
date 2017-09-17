@@ -65,6 +65,7 @@ public class SmarterRandomBot extends Player {
     };
     
     private double reactProbability = 0;
+    private double challengeReactionProbability = 0;
     
     private double score = 0;
     
@@ -441,9 +442,17 @@ public class SmarterRandomBot extends Player {
             return true;
         }
         
-        int choice = Math.abs(rand.nextInt() % 2);
+        //Otherwise act randomly
+        challengeReactionProbability = 0.5;
+        double guessNum = rand.nextDouble() * 1000;
+        System.out.println("AI propensity to react: " + challengeReactionProbability);
         
-        return choice == 1 ? true: false;
+        if ( ( (reactProbability * 1000) - guessNum) <= 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     
     /**
@@ -489,7 +498,7 @@ public class SmarterRandomBot extends Player {
         double guessNum = rand.nextDouble() * 1000;
         System.out.println("AI propensity to react: " + reactProbability);
         
-        if ((500 - guessNum) <= 0) {
+        if ( ( (reactProbability * 1000) - guessNum) <= 0) {
             return true;
         }
         else {
