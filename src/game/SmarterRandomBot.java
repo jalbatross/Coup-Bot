@@ -428,26 +428,28 @@ public class SmarterRandomBot extends Player {
      */
     @Override
     public boolean wantsChallengeReaction(Reaction aReaction) {
+        
+        //Default is random
+        challengeReactionProbability = 0.5;
+        
         if (aReaction == Reaction.BLOCK_ASSASSINATE &&
                 contessaCounter + contessaCounterDeck + contessaCounterHand == 3) {
-            return true;
+            challengeReactionProbability = 1;
         }
         if (aReaction == Reaction.BLOCK_FOREIGN_AID && 
                 dukeCounter + dukeCounterDeck + dukeCounterHand == 3 ) {
-            return true;
+            challengeReactionProbability = 1;
         }
         if (aReaction == Reaction.BLOCK_STEAL && 
                 captainCounter + captainCounterDeck + captainCounterHand  == 3 &&
                 ambassadorCounter + ambassadorCounterDeck + ambassadorCounterHand == 3) {
-            return true;
+            challengeReactionProbability = 1;
         }
         
-        //Otherwise act randomly
-        challengeReactionProbability = 0.5;
         double guessNum = rand.nextDouble() * 1000;
         System.out.println("AI propensity to react: " + challengeReactionProbability);
         
-        if ( ( (reactProbability * 1000) - guessNum) <= 0) {
+        if ( ( (challengeReactionProbability * 1000) - guessNum) <= 0) {
             return true;
         }
         else {
@@ -461,40 +463,39 @@ public class SmarterRandomBot extends Player {
     @Override
     public boolean wantsReaction(Action anAction) {
         
-        //Reset propensity of reaction
-        reactProbability = 0;
+        //Reset propensity of reaction - default is random
+        reactProbability = 0.5;
         
         //Always react to impossible scenarios
         if (anAction == Action.ASSASSINATE && 
                 assassinCounter + assassinCounterDeck + assassinCounterHand == 3) {
-            return true;
+            reactProbability = 1;
         }
         if (anAction == Action.STEAL && 
                 captainCounter + captainCounterDeck + captainCounterHand == 3) {
-            return true;
+            reactProbability = 1;
         }
         if(anAction == Action.EXCHANGE && 
                 ambassadorCounter + ambassadorCounterDeck + ambassadorCounterHand == 3) {
-            return true;
+            reactProbability = 1;
         }
         if (anAction == Action.TAX && 
                 dukeCounter + dukeCounterDeck + dukeCounterHand == 3) {
-            return true;
+            reactProbability = 1;
         }
         
         //No possible reaction in this case, so we don't act
         if (anAction == Action.FOREIGN_AID && dukeCounter == 3) {
-            return false;
+            reactProbability = 0;
         }
         
         //Always react to Assassinate if we have one card left
         if (anAction == Action.ASSASSINATE && numHiddenCards() == 1) {
-            return true;
+            reactProbability = 0;
         }
         
         
-        //Otherwise act randomly
-        reactProbability = 0.5;
+        //Evaluate action based on react probability
         double guessNum = rand.nextDouble() * 1000;
         System.out.println("AI propensity to react: " + reactProbability);
         
