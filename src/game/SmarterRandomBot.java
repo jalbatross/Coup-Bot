@@ -67,6 +67,8 @@ public class SmarterRandomBot extends Player {
     private double reactProbability = 0;
     private double challengeReactionProbability = 0;
     
+    private double[] revealProbabilities = new double[2];
+    
     private double score = 0;
     
     public SmarterRandomBot() {
@@ -107,20 +109,23 @@ public class SmarterRandomBot extends Player {
      */
     @Override
     public CardType getActionChallengeResponse(Action action) {
+        //Reset reveal probabilities to evenly random
+        revealProbabilities[0] = revealProbabilities[1] = 0.5;
         
         System.out.println("AI responding to an action challenge");
         
         //Check for a card in hand corresponding to correct action
-        //Choose that card if possible
+        //Choose that card if possible then reveal it
         for (int i = 0; i < hand.length; i++) {
             if (CardType.action(hand[i].influence) == action &&
                     !hand[i].revealed()) {
-                return hand[i].influence;
+                revealProbabilities[i] = 1;
+                revealProbabilities[(i + 1) % 2] = 0;
                 
             }
         }
        
-        //Reveal this card. Otherwise choose randomly.
+        //Otherwise choose using probabilities.
         int choice = Math.abs(rand.nextInt() % 2);
         
         if (hand[choice].revealed()) {
