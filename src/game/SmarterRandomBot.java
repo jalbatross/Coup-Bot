@@ -115,7 +115,8 @@ public class SmarterRandomBot extends Player {
         System.out.println("AI responding to an action challenge");
         
         //Check for a card in hand corresponding to correct action
-        //Choose that card if possible then reveal it
+        //If the card is in hand, set the probability for that card being
+        //revealed to 1
         for (int i = 0; i < hand.length; i++) {
             if (CardType.action(hand[i].influence) == action &&
                     !hand[i].revealed()) {
@@ -125,12 +126,30 @@ public class SmarterRandomBot extends Player {
             }
         }
        
-        //Otherwise choose using probabilities.
-        int choice = Math.abs(rand.nextInt() % 2);
+        double guessNum = rand.nextDouble() * 1000;
+        double count = 1000;
+        System.out.println("AI propensity to react: " + challengeReactionProbability);
+        
+        //Reveal a card using probabilities
+        int choice = -1;
+        
+        for (int i = 0; i < revealProbabilities.length; i++) {
+            if (revealProbabilities[i] == 0) {
+                continue;
+            }
+            count = count - (revealProbabilities[i] * 1000);
+            if (count - guessNum <= 0) {
+                //Return reaction corresponding to the index of reactionProbabilities
+                choice = i;
+                break;
+            }
+        }
         
         if (hand[choice].revealed()) {
             choice = (choice + 1) % 2;
         }
+        
+        System.out.println("AI is responding to challenge with " + hand[choice].influence);
         
         return hand[choice].influence;
     }
