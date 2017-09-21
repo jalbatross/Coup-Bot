@@ -128,7 +128,98 @@ public class SmarterRandomBot extends Player {
        
         double guessNum = rand.nextDouble() * 1000;
         double count = 1000;
-        System.out.println("AI propensity to react: " + challengeReactionProbability);
+        
+        //Reveal a card using probabilities
+        int choice = -1;
+        
+        for (int i = 0; i < revealProbabilities.length; i++) {
+            if (revealProbabilities[i] == 0) {
+                continue;
+            }
+            count = count - (revealProbabilities[i] * 1000);
+            if (count - guessNum <= 0) {
+                //Return reaction corresponding to the index of reactionProbabilities
+                choice = i;
+                break;
+            }
+        }
+        
+        //Final check to make sure we're not revealing a card that is already revealed
+        if (hand[choice].revealed()) {
+            choice = (choice + 1) % 2;
+        }
+        
+        System.out.println("AI is responding to challenge with " + hand[choice].influence);
+        
+        return hand[choice].influence;
+    }
+    
+    /**
+     * Adjusted so that the AI always opts to reveal the card in hand 
+     * corresponding to the reaction if possible.
+     */
+    @Override
+    public CardType getReactionChallengeResponse(Reaction reaction) {
+        
+        //Reset reveal probabilities to evenly random
+        revealProbabilities[0] = revealProbabilities[1] = 0.5;
+        
+        System.out.println("AI responding to a reaction challenge");
+        
+        //Check for a card in hand corresponding to correct reaction
+        //Choose that card if possible
+        for (int i = 0; i < hand.length; i++) {
+            if (CardType.reaction(hand[i].influence) == reaction &&
+                    !hand[i].revealed()) {
+                revealProbabilities[i] = 1;
+                revealProbabilities[(i + 1) % 2] = 0;
+                
+            }
+        }
+       
+        //Reveal this card. Otherwise choose randomly.
+        double guessNum = rand.nextDouble() * 1000;
+        double count = 1000;
+        
+        //Reveal a card using probabilities
+        int choice = -1;
+        
+        for (int i = 0; i < revealProbabilities.length; i++) {
+            if (revealProbabilities[i] == 0) {
+                continue;
+            }
+            count = count - (revealProbabilities[i] * 1000);
+            if (count - guessNum <= 0) {
+                //Return reaction corresponding to the index of reactionProbabilities
+                choice = i;
+                break;
+            }
+        }
+        
+        //Final check to make sure we're not revealing a card that is already revealed
+        if (hand[choice].revealed()) {
+            choice = (choice + 1) % 2;
+        }
+        
+        System.out.println("AI is responding to reaction with " + hand[choice].influence);
+        
+        return hand[choice].influence;
+    }
+
+    @Override
+    public Card revealCard() {
+        System.out.println(name + ", you must reveal a card");
+        System.out.println("Your choices: " + hiddenCardsString());
+        
+        System.out.println("Enter a number corresponding to your choice");
+        
+        //populateRevealProbabilities();
+        
+        //Reset reveal probabilities to random
+        revealProbabilities[0] = revealProbabilities[1] = 0.5;
+        
+        double guessNum = rand.nextDouble() * 1000;
+        double count = 1000;
         
         //Reveal a card using probabilities
         int choice = -1;
@@ -149,53 +240,6 @@ public class SmarterRandomBot extends Player {
             choice = (choice + 1) % 2;
         }
         
-        System.out.println("AI is responding to challenge with " + hand[choice].influence);
-        
-        return hand[choice].influence;
-    }
-    
-    /**
-     * Adjusted so that the AI always opts to reveal the card in hand 
-     * corresponding to the reaction if possible.
-     */
-    @Override
-    public CardType getReactionChallengeResponse(Reaction reaction) {
-        
-        System.out.println("AI responding to a reactrion challenge");
-        
-        //Check for a card in hand corresponding to correct reaction
-        //Choose that card if possible
-        for (int i = 0; i < hand.length; i++) {
-            if (CardType.reaction(hand[i].influence) == reaction &&
-                    !hand[i].revealed()) {
-                return hand[i].influence;
-                
-            }
-        }
-       
-        //Reveal this card. Otherwise choose randomly.
-        int choice = Math.abs(rand.nextInt() % 2);
-        
-        if (hand[choice].revealed()) {
-            choice = (choice + 1) % 2;
-        }
-        
-        return hand[choice].influence;
-    }
-
-    @Override
-    public Card revealCard() {
-        System.out.println(name + ", you must reveal a card");
-        System.out.println("Your choices: " + hiddenCardsString());
-        
-        System.out.println("Enter a number corresponding to your choice");
-        
-        int choice = Math.abs(rand.nextInt() % 2);
-        
-        if (hand[choice].revealed()) {
-            choice = (choice + 1) % 2;
-        }
-        
         //Update revealed counter
         updateRevealedCounter(hand[choice]);
         
@@ -203,6 +247,7 @@ public class SmarterRandomBot extends Player {
         decrementHandCounter(hand[choice]);
         
         hand[choice].reveal();
+        
         return hand[choice];
     }
     
