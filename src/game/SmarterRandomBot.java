@@ -612,6 +612,12 @@ public class SmarterRandomBot extends Player {
         //Choosing two cards
         if (exchangeNum == 2) {
             
+            //Populate probability to pick one card
+            //Get first index of choice
+            //set that index in probability distribution to 0
+            //Repopulate with 3 only
+            //Get second index of choice
+            
             //Two cards means we have 4 choices
             int choice1 = Math.abs(rand.nextInt() % 4);
             int choice2 = Math.abs(rand.nextInt() % 4);
@@ -647,6 +653,10 @@ public class SmarterRandomBot extends Player {
         }
         //Only 1 card to exchange, 3 possible choices
         else {
+            
+            //Populate probability to pick one card
+            //Get first index of choice
+            //set that index in probability distribution to 0
             
             int choice = Math.abs(rand.nextInt() % 3);
             
