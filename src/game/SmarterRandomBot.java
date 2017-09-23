@@ -611,6 +611,33 @@ public class SmarterRandomBot extends Player {
         
         //Choosing two cards
         if (exchangeNum == 2) {
+            int choice1 = -1;
+            int choice2 = -1;
+            
+            double[] exchangeProbs = {0.25, 0.25, 0.25, 0.25};
+            
+            double guessNum = rand.nextDouble() * 1000;
+            double count = 1000;
+            
+            for (int i = 0; i < exchangeProbs.length; i++) {
+                count = count - (exchangeProbs[i] * 1000);
+                if (count <= 0) {
+                    choice1 = i;
+                }
+            }
+            
+            exchangeProbs = new double[3];
+            exchangeProbs[0] = exchangeProbs[1] = exchangeProbs[2] = 0.333;
+            
+            guessNum = rand.nextDouble() * 1000;
+            count = 1000;
+            
+            for (int i = 0; i < exchangeProbs.length; i++) {
+                count = count - (exchangeProbs[i] * 1000);
+                if (count <= 0) {
+                    choice2 = i;
+                }
+            }
             
             //Populate probability to pick one card
             //Get first index of choice
