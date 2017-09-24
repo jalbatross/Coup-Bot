@@ -630,6 +630,12 @@ public class SmarterRandomBot extends Player {
             exchangeProbs[0] = exchangeProbs[1] = exchangeProbs[2] = 0.333;
             
             guessNum = rand.nextDouble() * 1000;
+            
+            //Fix for 1/3rd distribution
+            if (guessNum == 1) {
+                guessNum++;
+            }
+            
             count = 1000;
             
             for (int i = 0; i < exchangeProbs.length; i++) {
@@ -638,22 +644,7 @@ public class SmarterRandomBot extends Player {
                     choice2 = i;
                 }
             }
-            
-            //Populate probability to pick one card
-            //Get first index of choice
-            //set that index in probability distribution to 0
-            //Repopulate with 3 only
-            //Get second index of choice
-            
-            //Two cards means we have 4 choices
-            int choice1 = Math.abs(rand.nextInt() % 4);
-            int choice2 = Math.abs(rand.nextInt() % 4);
-            
-            //Make sure the choices aren't the same
-            while (choice2 == choice1) {
-                choice2 = Math.abs(rand.nextInt() % 4);
-            }
-            
+                
             setHand(choices.get(choice1), choices.get(choice2));
             
             Card[] returnedCards = new Card[2];
