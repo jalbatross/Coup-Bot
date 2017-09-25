@@ -621,8 +621,9 @@ public class SmarterRandomBot extends Player {
             
             for (int i = 0; i < exchangeProbs.length; i++) {
                 count = count - (exchangeProbs[i] * 1000);
-                if (count <= 0) {
+                if (count - guessNum <= 0) {
                     choice1 = i;
+                    break;
                 }
             }
             
@@ -642,6 +643,7 @@ public class SmarterRandomBot extends Player {
                 count = count - (exchangeProbs[i] * 1000);
                 if (count <= 0) {
                     choice2 = i;
+                    break;
                 }
             }
                 
@@ -671,12 +673,22 @@ public class SmarterRandomBot extends Player {
         }
         //Only 1 card to exchange, 3 possible choices
         else {
+            int choice = -1;
+            double[] exchangeProbs = {0.333, 0.333, 0.333};
             
+            double guessNum = rand.nextDouble() * 1000;
+            double count = 1000;
+            
+            for (int i = 0; i < exchangeProbs.length; i++) {
+                count = count - (exchangeProbs[i] * 1000);
+                if (guessNum - count <= 0 ) {
+                    choice = i;
+                    break;
+                }
+            }
             //Populate probability to pick one card
             //Get first index of choice
             //set that index in probability distribution to 0
-            
-            int choice = Math.abs(rand.nextInt() % 3);
             
             for (int i = 0; i < 2; i++) {
                 if (!hand[i].revealed()) {
